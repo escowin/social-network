@@ -16,12 +16,12 @@ const UserSchema = new Schema(
             // mongoose matching validation | valid email
             trim: true
         },
-        thoughts: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Thought"
-            }
-        ],
+        // thoughts: [
+        //     {
+        //         type: Schema.Types.ObjectId,
+        //         ref: "Thought"
+        //     }
+        // ],
         // friends: [
         //     {
         //         type: SchemaType.Types.ObjectId,
