@@ -1,5 +1,4 @@
 const { Schema, model, SchemaType } = require("mongoose");
-// const dateFormat = require('../utils/dateFormat');
 
 const UserSchema = new Schema(
     {
@@ -13,22 +12,22 @@ const UserSchema = new Schema(
             type: String,
             unique: true,
             required: true,
-            // mongoose matching validation | valid email
+            match: [/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/, 'testing regex validator'],
             trim: true
         },
-        // thoughts: [
-        //     {
-        //         type: Schema.Types.ObjectId,
-        //         ref: "Thought"
-        //     }
-        // ],
-        // friends: [
-        //     {
-        //         type: SchemaType.Types.ObjectId,
-        //         // self-referencing
-        //         ref: "User"
-        //     }
-        // ]
+        thoughts: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Thought"
+            }
+        ],
+        friends: [
+            {
+                type: Schema.Types.ObjectId,
+                // self-referencing
+                ref: "User"
+            }
+        ]
     },
     {
         toJSON: {
@@ -41,7 +40,8 @@ const UserSchema = new Schema(
 
 UserSchema.virtual("friendCount").get(function () {
     // create a virtual called friendCount that retrieves the length of the user's friends array field on query.
-})
+    // return this.friends.length;
+});
 
 const User = model("User", UserSchema)
 
