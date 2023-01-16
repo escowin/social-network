@@ -13,9 +13,12 @@ const userController = {
     User.find({})
       // .populate({
       //   path: "thoughts",
-      //   // '__v' ignored by mongoose
-      //   select: "-__v",
+      //   select: "-__v", // ignored in the req
       // })
+      .populate({
+        path: "friends",
+        select: "-__v",
+      })
       .select("-__v")
       .sort({ _id: -1 }) // DESC order, newest user at the top of the list
       .then((dbUserData) => res.json(dbUserData))
@@ -44,7 +47,7 @@ const userController = {
 
   // update | odm | method updates a user
   updateUser({ params, body }, res) {
-    User.findOneAndUpdate({ _id: params.id }, body, { new: true })
+    User.findOneAndUpdate({ _id: params.id }, body, { new: true, runValidators: true })
       .then((dbUserData) => {
         if (!dbUserData) {
           res.status(404).json({ message: "user does not exist" });
