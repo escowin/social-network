@@ -7,4 +7,7 @@ router.route("/").get(getAllThoughts);
 // - route | /api/thoughts/:userId/ | POST
 router.route("/:userId").post(createThought);
 
+// - route | /api/thoughts/:userId/:thoughtId | PUT, DELETE
+router.route("/:userId/:thoughtId").put().delete();
+
 module.exports = router;
