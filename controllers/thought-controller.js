@@ -29,7 +29,6 @@ const thoughtController = {
   // - read
   getAllThoughts(req, res) {
     Thought.find({})
-      // .populate()
       .sort({ createdAt: -1 })
       .select("-__v")
       .then((dbThoughtData) => res.json(dbThoughtData))
@@ -101,27 +100,32 @@ const thoughtController = {
   addReaction({ params, body }, res) {
     Thought.findOneAndUpdate(
       { _id: params.thoughtId },
-      { $push: { replies: body } },
+      { $addToSet: { reactions: body } },
       { new: true, runValidators: true }
     )
-      .then((dbUserData) => {
-        if (!dbUserData) {
-          return res.status(404).json({ message: "user does not exist" });
+      .then((dbThoughtData) => {
+        if (!dbThoughtData) {
+          return res.status(404).json({ message: "thought does not exist" });
         }
-        res.json(dbUserData);
+        res.json(dbThoughtData);
       })
-      .catch((err) => res.json(err));
+      .catch((err) => res.status(500).json(err));
   },
 
   // - delete
   removeReaction({ params }, res) {
     Thought.findOneAndUpdate(
       { _id: params.thoughtId },
-      { $pull: { replies: { reactionId: params.reactionId } } },
+      { $pull: { reactions: { reactionId: params.reactionId } } },
       { new: true }
     )
-      .then((dbUserData) => res.json(dbUserData))
-      .catch((err) => res.json(err));
+    .then(dbThoughtData => {
+      if (!dbThoughtData) {
+        return res.status(404).json({ message: "remove reaction error" })
+      }
+      res.json(dbThoughtData)
+    })
+      .catch((err) => res.status(500).json(err));
   },
 };
 
