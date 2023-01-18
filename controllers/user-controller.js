@@ -86,11 +86,28 @@ const userController = {
   },
 
   // friends
+  // - post | adds friend to User doc friends field
   addFriend({ params }, res) {
     //
     User.findOneAndUpdate(
       { _id: params.userId },
       { $addToSet: { friends: params.friendId } },
+      { new: true }
+    )
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          return res.status(404).json({ message: "user does not exist" });
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => res.status(500).json(err));
+  },
+
+  // - delete | removes friend from User doc friends field
+  removeFriend({ params }, res) {
+    User.findOneAndUpdate(
+      { _id: params.userId },
+      { $pull: { friends: params.friendId } },
       { new: true }
     )
       .then((dbUserData) => {
