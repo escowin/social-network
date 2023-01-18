@@ -79,9 +79,26 @@ const userController = {
         }
 
         // deletes all thoughts that are located within this user doc under its 'thoughts' field/value
-        return Thought.deleteMany({ _id: { $in: dbUserData.thoughts }});
+        return Thought.deleteMany({ _id: { $in: dbUserData.thoughts } });
       })
-      .then(() => res.json({ message: "deleted user and associated thoughts"}))
+      .then(() => res.json({ message: "deleted user and associated thoughts" }))
+      .catch((err) => res.status(500).json(err));
+  },
+
+  // friends
+  addFriend({ params }, res) {
+    //
+    User.findOneAndUpdate(
+      { _id: params.userId },
+      { $addToSet: { friends: params.friendId } },
+      { new: true }
+    )
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          return res.status(404).json({ message: "user does not exist" });
+        }
+        res.json(dbUserData);
+      })
       .catch((err) => res.status(500).json(err));
   },
 };
