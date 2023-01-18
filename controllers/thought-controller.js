@@ -5,25 +5,22 @@ const thoughtController = {
   // - create
   createThought({ params, body }, res) {
     console.log(body);
-    Thought.create(body, {
-      new: true,
-      runValidators: true,
-    })
-      .then(({ _id }) => {
+    Thought.create(body)
+      .then((dbThoughtData) => {
         return User.findOneAndUpdate(
-          { _id: params.userId },
-          { $push: { thoughts: _id } }, // adds thought id to user document
-          { new: true } // true | allows update, user document will include thought
+          { _id: body.userId },
+          { $push: { thoughts: dbThoughtData._id } },
+          { new: true }
         );
       })
       .then((dbUserData) => {
         if (!dbUserData) {
-          res.status(404).json({ message: "create thought error" });
-          return;
+          return res
+            .status(404)
+            .json({ message: "created thought but missing associated user" });
         }
-        res.json(dbUserData);
       })
-      .catch((err) => res.json(err));
+      .catch((err) => res.status(500).json(err));
   },
 
   // - read
@@ -87,7 +84,7 @@ const thoughtController = {
       })
       .then((dbThoughtData) => {
         if (!dbThoughtData) {
-          res.status(404).json({ message: "user does not exist" });
+          res.status(404).json({ message: "thought does not exist" });
           return;
         }
         res.json(dbThoughtData);
@@ -119,12 +116,12 @@ const thoughtController = {
       { $pull: { reactions: { reactionId: params.reactionId } } },
       { new: true }
     )
-    .then(dbThoughtData => {
-      if (!dbThoughtData) {
-        return res.status(404).json({ message: "remove reaction error" })
-      }
-      res.json(dbThoughtData)
-    })
+      .then((dbThoughtData) => {
+        if (!dbThoughtData) {
+          return res.status(404).json({ message: "thought does not exist" });
+        }
+        res.json(dbThoughtData);
+      })
       .catch((err) => res.status(500).json(err));
   },
 };
