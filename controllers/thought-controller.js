@@ -19,6 +19,8 @@ const thoughtController = {
             .status(404)
             .json({ message: "created thought but missing associated user" });
         }
+
+        res.json(dbUserData);
       })
       .catch((err) => res.status(500).json(err));
   },

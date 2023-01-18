@@ -78,9 +78,8 @@ const userController = {
           return;
         }
 
-        // deletes associated thoughts before deleting user
-        Thought.deleteMany({ _id: { $in: dbUserData.thoughts }});
-        return;
+        // deletes all thoughts that are located within this user doc under its 'thoughts' field/value
+        return Thought.deleteMany({ _id: { $in: dbUserData.thoughts }});
       })
       .then(() => res.json({ message: "deleted user and associated thoughts"}))
       .catch((err) => res.status(500).json(err));
