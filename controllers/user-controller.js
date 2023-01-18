@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, Thought } = require("../models");
 
 const userController = {
   // create | odm | method posts a user document
@@ -65,20 +65,25 @@ const userController = {
         }
         res.json(dbUserData);
       })
-      .catch((err) => res.status(400).json(err));
+      .catch((err) => res.status(500).json(err));
   },
 
   // delete | odm | method deletes a user
   deleteUser({ params }, res) {
+    // locates the queried user by its id
     User.findOneAndDelete({ _id: params.id })
       .then((dbUserData) => {
         if (!dbUserData) {
           res.status(404).json({ message: "user does not exist" });
           return;
         }
-        res.json(dbUserData);
+
+        // deletes associated thoughts before deleting user
+        Thought.deleteMany({ _id: { $in: dbUserData.thoughts }});
+        return;
       })
-      .catch((err) => res.status(400).json(err));
+      .then(() => res.json({ message: "deleted user and associated thoughts"}))
+      .catch((err) => res.status(500).json(err));
   },
 };
 

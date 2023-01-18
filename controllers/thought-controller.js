@@ -2,9 +2,9 @@ const { Thought, User } = require("../models");
 
 const thoughtController = {
   // document | thoughts
-  // - create
-  createThought({ params, body }, res) {
-    console.log(body);
+  // - create | destructured body from req since other req data is superfluous
+  createThought({ body }, res) {
+    // console.log(body);
     Thought.create(body)
       .then((dbThoughtData) => {
         return User.findOneAndUpdate(
@@ -24,9 +24,10 @@ const thoughtController = {
   },
 
   // - read
+  // standard req, res. nothing specific needed
   getAllThoughts(req, res) {
     Thought.find({})
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 }) // desc order, newest to oldest
       .select("-__v")
       .then((dbThoughtData) => res.json(dbThoughtData))
       .catch((err) => {
@@ -35,8 +36,9 @@ const thoughtController = {
       });
   },
 
-  getThoughtById(req, res) {
-    Thought.findOne({ _id: req.params.thoughtId })
+  // params destructured from req
+  getThoughtById({params}, res) {
+    Thought.findOne({ _id: params.thoughtId })
       .then((dbThoughtData) => {
         if (!dbThoughtData) {
           res.state(404).json({ message: "thought does not exist" });
@@ -76,9 +78,11 @@ const thoughtController = {
         if (!deleteThought) {
           return res.status(404).json({ message: "thought does not exist" });
         }
+
+        // thought is located by its id, then removed from user the user 'thoughts' frield. this edit to the user doc is saved.
         return User.findOneAndUpdate(
           { _id: params.userId },
-          { $pull: { thought: params.thoughtId } },
+          { $pull: { thoughts: params.thoughtId } },
           { new: true }
         );
       })
